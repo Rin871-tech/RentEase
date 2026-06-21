@@ -29,15 +29,28 @@ export default function ProductCard({ product }) {
     <Link to={`/product/${product._id}`} className="group block h-full">
       <article className="card-hover overflow-hidden h-full flex flex-col opacity-0-start animate-fade-in-up">
         {/* Image Area */}
-        <div className="relative h-52 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-brand-400 via-brand-500 to-brand-700 flex items-center justify-center transition-transform duration-500 group-hover:scale-110">
-            <span className="text-7xl drop-shadow-lg transition-transform duration-500 group-hover:scale-110 group-hover:-translate-y-1">
-              {icon}
-            </span>
-          </div>
-
-          {/* Overlay gradient on hover */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        <div className="relative h-52 overflow-hidden bg-slate-100">
+          {/* Show real image if available, otherwise show gradient + icon */}
+          {product.image ? (
+            <>
+              <img
+                src={product.image}
+                alt={product.name}
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                loading="lazy"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            </>
+          ) : (
+            <>
+              <div className="absolute inset-0 bg-gradient-to-br from-brand-400 via-brand-500 to-brand-700 flex items-center justify-center transition-transform duration-500 group-hover:scale-110">
+                <span className="text-7xl drop-shadow-lg transition-transform duration-500 group-hover:scale-110 group-hover:-translate-y-1">
+                  {icon}
+                </span>
+              </div>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            </>
+          )}
 
           {/* Badges */}
           <div className="absolute top-3 left-3 flex flex-wrap gap-2">

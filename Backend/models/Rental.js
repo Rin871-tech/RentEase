@@ -37,9 +37,10 @@ const rentalSchema = new mongoose.Schema(
     },
     deliveryDate: Date,
     pickupDate: Date,
+    returnDate: Date,
     status: {
       type: String,
-      enum: ['pending', 'confirmed', 'delivered', 'returned', 'cancelled'],
+      enum: ['pending', 'confirmed', 'delivered', 'returned', 'overdue', 'completed', 'cancelled'],
       default: 'pending',
     },
     paymentStatus: {
@@ -47,6 +48,12 @@ const rentalSchema = new mongoose.Schema(
       enum: ['pending', 'completed', 'failed'],
       default: 'pending',
     },
+    damageReport: {
+      description: String,
+      amount: Number,
+      reportedDate: Date,
+    },
+    notes: String,
     createdAt: {
       type: Date,
       default: Date.now,
@@ -54,5 +61,9 @@ const rentalSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+rentalSchema.index({ userId: 1, status: 1 });
+rentalSchema.index({ productId: 1 });
+rentalSchema.index({ createdAt: -1 });
 
 module.exports = mongoose.model('Rental', rentalSchema);

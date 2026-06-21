@@ -34,6 +34,20 @@ const productSchema = new mongoose.Schema(
       type: [Number], // e.g., [3, 6, 12] for 3, 6, 12 months
       default: [3, 6, 12],
     },
+    lastRestocked: Date,
+    condition: {
+      type: String,
+      enum: ['new', 'good', 'fair', 'poor'],
+      default: 'good',
+    },
+    maintenanceHistory: [
+      {
+        date: Date,
+        description: String,
+        cost: Number,
+        technician: String,
+      },
+    ],
     createdAt: {
       type: Date,
       default: Date.now,
@@ -41,5 +55,7 @@ const productSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+productSchema.index({ category: 1 });
 
 module.exports = mongoose.model('Product', productSchema);
