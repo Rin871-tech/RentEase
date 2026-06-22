@@ -14,7 +14,7 @@ const sampleProducts = [
     quantity: 5,
     available: true,
     tenureOptions: [3, 6, 12],
-    image: 'https://images.unsplash.com/photo-1505693314967-38190ff929c5?w=800&q=80',
+    image: 'https://images.pexels.com/photos/36777941/pexels-photo-36777941.jpeg',
     condition: 'new',
   },
   {
@@ -26,7 +26,7 @@ const sampleProducts = [
     quantity: 3,
     available: true,
     tenureOptions: [3, 6, 12],
-    image: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&q=80',
+    image: 'https://images.pexels.com/photos/6588592/pexels-photo-6588592.jpeg',
     condition: 'good',
   },
   {
@@ -38,7 +38,7 @@ const sampleProducts = [
     quantity: 4,
     available: true,
     tenureOptions: [3, 6, 12],
-    image: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&q=80&crop=entropy&cs=tinysrgb',
+    image: 'https://images.pexels.com/photos/4221404/pexels-photo-4221404.jpeg',
     condition: 'good',
   },
   {
@@ -50,7 +50,7 @@ const sampleProducts = [
     quantity: 6,
     available: true,
     tenureOptions: [3, 6, 12],
-    image: 'https://images.unsplash.com/photo-1592078615290-033ee584e267?w=800&q=80',
+    image: 'https://images.pexels.com/photos/14245340/pexels-photo-14245340.jpeg',
     condition: 'good',
   },
   {
@@ -62,7 +62,7 @@ const sampleProducts = [
     quantity: 2,
     available: true,
     tenureOptions: [3, 6, 12],
-    image: 'https://images.unsplash.com/photo-1584622181563-430f63602d4b?w=800&q=80',
+    image: 'https://images.pexels.com/photos/3958962/pexels-photo-3958962.jpeg',
     condition: 'new',
   },
   {
@@ -74,7 +74,7 @@ const sampleProducts = [
     quantity: 2,
     available: true,
     tenureOptions: [3, 6, 12],
-    image: 'https://images.unsplash.com/photo-1517668808822-9ebb02ae2a0e?w=800&q=80',
+    image: 'https://images.pexels.com/photos/28479466/pexels-photo-28479466.jpeg',
     condition: 'good',
   },
   {
@@ -86,7 +86,7 @@ const sampleProducts = [
     quantity: 3,
     available: true,
     tenureOptions: [3, 6, 12],
-    image: 'https://images.unsplash.com/photo-1559056199-641a0ac8b3f7?w=800&q=80',
+    image: 'https://images.pexels.com/photos/5202925/pexels-photo-5202925.jpeg',
     condition: 'new',
   },
   {
@@ -98,7 +98,7 @@ const sampleProducts = [
     quantity: 2,
     available: true,
     tenureOptions: [3, 6, 12],
-    image: 'https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=800&q=80',
+    image: 'https://images.pexels.com/photos/20896377/pexels-photo-20896377.jpeg',
     condition: 'good',
   },
   {
@@ -110,7 +110,7 @@ const sampleProducts = [
     quantity: 5,
     available: true,
     tenureOptions: [3, 6, 12],
-    image: 'https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=800&q=80',
+    image: 'https://images.pexels.com/photos/7749060/pexels-photo-7749060.jpeg',
     condition: 'good',
   },
   {
@@ -122,7 +122,7 @@ const sampleProducts = [
     quantity: 7,
     available: true,
     tenureOptions: [3, 6, 12],
-    image: 'https://images.unsplash.com/photo-1540932239986-310128078caf?w=800&q=80',
+    image: 'https://images.pexels.com/photos/35236646/pexels-photo-35236646.jpeg',
     condition: 'new',
   },
 ];
