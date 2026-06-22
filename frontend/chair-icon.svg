@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Seat -->
+  <rect x="18" y="26" width="28" height="10" rx="2"/>
+
+  <!-- Backrest -->
+  <rect x="18" y="14" width="28" height="12" rx="2"/>
+
+  <!-- Legs -->
+  <line x1="22" y1="36" x2="18" y2="54"/>
+  <line x1="42" y1="36" x2="46" y2="54"/>
+
+  <!-- Support bar -->
+  <line x1="18" y1="48" x2="46" y2="48"/>
+</svg>
