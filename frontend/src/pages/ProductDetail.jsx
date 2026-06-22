@@ -4,14 +4,15 @@ import { productsAPI } from '../services/api';
 import { CartContext } from '../context/CartContext';
 import { PageLoader } from '../components/LoadingSpinner';
 
-const categoryIcons = {
-  bed: '🛏️',
-  sofa: '🛋️',
-  table: '🪑',
-  fridge: '🧊',
-  'washing-machine': '🧺',
-  tv: '📺',
+const categoryFallbackImages = {
+  bed: 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800&q=80',
+  sofa: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&q=80',
+  table: 'https://images.unsplash.com/photo-1604578762246-41134e37f9cc?w=800&q=80',
+  fridge: 'https://images.unsplash.com/photo-1571175443880-49e1d25b2bc5?w=800&q=80',
+  'washing-machine': 'https://images.unsplash.com/photo-1610557892470-55d9e80c0bce?w=800&q=80',
+  tv: 'https://images.unsplash.com/photo-1593359677879-a4bb92f4834c?w=800&q=80',
 };
+
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -19,7 +20,8 @@ export default function ProductDetail() {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [adding, setAdding] = useState(false);
-  const [tenure, setTenure] = useState(3);
+ const [tenure, setTenure] = useState(3);
+  const [imgError, setImgError] = useState(false);
   const { addToCart } = useContext(CartContext);
 
   useEffect(() => {
@@ -59,8 +61,7 @@ export default function ProductDetail() {
   }
 
   const totalCost = product.monthlyPrice * tenure;
-  const icon = categoryIcons[product.category] || '📦';
-
+const imgSrc = product.image || categoryFallbackImages[product.category] || '';
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 animate-fade-in">
       <button
@@ -76,8 +77,20 @@ export default function ProductDetail() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
         {/* Image */}
         <div className="card overflow-hidden">
-          <div className="h-80 lg:h-[28rem] bg-gradient-to-br from-brand-400 via-brand-500 to-brand-700 flex items-center justify-center relative">
-            <span className="text-[8rem] drop-shadow-2xl animate-float">{icon}</span>
+                    <div className="h-80 lg:h-[28rem] bg-slate-100 relative">
+            {imgSrc && !imgError ? (
+              <img
+                src={imgSrc}
+                alt={product.name}
+                onError={() => setImgError(true)}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="absolute inset-0 bg-gradient-to-br from-brand-400 via-brand-500 to-brand-700 flex items-center justify-center">
+                <span className="text-[8rem] drop-shadow-2xl animate-float">📦</span>
+              </div>
+            )}
+          
             <span className="absolute top-4 left-4 badge-brand capitalize">
               {product.category.replace('-', ' ')}
             </span>
