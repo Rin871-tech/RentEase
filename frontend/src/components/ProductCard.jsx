@@ -1,13 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
-const categoryIcons = {
-  bed: '🛏️',
-  sofa: '🛋️',
-  table: '🪑',
-  fridge: '🧊',
-  'washing-machine': '🧺',
-  tv: '📺',
+const categoryFallbackImages = {
+  bed: 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800&q=80',
+  sofa: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&q=80',
+  table: 'https://images.unsplash.com/photo-1604578762246-41134e37f9cc?w=800&q=80',
+  fridge: 'https://images.unsplash.com/photo-1571175443880-49e1d25b2bc5?w=800&q=80',
+  'washing-machine': 'https://images.unsplash.com/photo-1610557892470-55d9e80c0bce?w=800&q=80',
+  tv: 'https://images.unsplash.com/photo-1593359677879-a4bb92f4834c?w=800&q=80',
 };
 
 const categoryLabels = {
@@ -19,38 +19,33 @@ const categoryLabels = {
   tv: 'Electronics',
 };
 
-export default function ProductCard({ product }) {
-  const icon = categoryIcons[product.category] || '📦';
-  const label = categoryLabels[product.category] || product.category.replace('-', ' ');
+export default function 
+  ProductCard({ product }) {
+const label = categoryLabels[product.category] || product.category.replace('-', ' ');
   const isPopular = product.monthlyPrice <= 999;
-  const isNew = product._id && parseInt(product._id.slice(-2), 16) % 3 === 0;
-
+ const isNew = product._id && parseInt(product._id.slice(-2), 16) % 3 === 0;
+  const imgSrc = product.image || categoryFallbackImages[product.category] || '';
+  const [imgError, setImgError] = useState(false);
   return (
     <Link to={`/product/${product._id}`} className="group block h-full">
       <article className="card-hover overflow-hidden h-full flex flex-col opacity-0-start animate-fade-in-up">
         {/* Image Area */}
-        <div className="relative h-52 overflow-hidden bg-slate-100">
-          {/* Show real image if available, otherwise show gradient + icon */}
-          {product.image ? (
-            <>
-              <img
-                src={product.image}
-                alt={product.name}
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                loading="lazy"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            </>
+  <div className="relative h-52 overflow-hidden bg-slate-100">
+          {imgSrc && !imgError ? (
+            <img
+              src={imgSrc}
+              alt={product.name}
+              onError={() => setImgError(true)}
+              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+            />
           ) : (
-            <>
-              <div className="absolute inset-0 bg-gradient-to-br from-brand-400 via-brand-500 to-brand-700 flex items-center justify-center transition-transform duration-500 group-hover:scale-110">
-                <span className="text-7xl drop-shadow-lg transition-transform duration-500 group-hover:scale-110 group-hover:-translate-y-1">
-                  {icon}
-                </span>
-              </div>
-              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            </>
+            <div className="absolute inset-0 bg-gradient-to-br from-brand-400 via-brand-500 to-brand-700 flex items-center justify-center">
+              <span className="text-7xl drop-shadow-lg">📦</span>
+            </div>
           )}
+
+          {/* Overlay gradient on hover */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
           {/* Badges */}
           <div className="absolute top-3 left-3 flex flex-wrap gap-2">
