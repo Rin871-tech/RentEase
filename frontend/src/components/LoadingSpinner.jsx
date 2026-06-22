@@ -9,7 +9,8 @@ export function Spinner({ size = 'md', className = '' }) {
 
   return (
     <div
-      className={`${sizes[size]} rounded-full border-brand-200 border-t-brand-600 animate-spin ${className}`}
+      className={`${sizes[size]} rounded-full animate-spin ${className}`}
+      style={{ borderColor: 'rgba(196,129,58,0.25)', borderTopColor: '#c4813a' }}
       role="status"
       aria-label="Loading"
     />
@@ -21,7 +22,7 @@ export default function LoadingSpinner({ size = 'md', text = '' }) {
     <div className="flex flex-col items-center justify-center gap-4">
       <Spinner size={size} />
       {text && (
-        <p className="text-slate-500 font-medium animate-pulse-soft">{text}</p>
+        <p className="font-medium animate-pulse-soft font-body" style={{ color: '#8b6040' }}>{text}</p>
       )}
     </div>
   );
@@ -29,13 +30,13 @@ export default function LoadingSpinner({ size = 'md', text = '' }) {
 
 export function ProductCardSkeleton() {
   return (
-    <div className="card overflow-hidden">
-      <div className="skeleton h-52 w-full rounded-none" />
+    <div className="rounded-xl overflow-hidden" style={{ background: 'linear-gradient(160deg, #3d2512, #2d1b0e)', border: '1px solid rgba(196,129,58,0.15)' }}>
+      <div className="h-52 w-full" style={{ background: 'linear-gradient(90deg, #3d2512 25%, #4a2c16 50%, #3d2512 75%)', backgroundSize: '200% 100%', animation: 'shimmer 2s linear infinite' }} />
       <div className="p-6 space-y-4">
-        <div className="skeleton h-5 w-3/4" />
-        <div className="skeleton h-4 w-1/3" />
-        <div className="skeleton h-16 w-full rounded-xl" />
-        <div className="skeleton h-10 w-full rounded-xl" />
+        <div className="h-5 w-3/4 rounded-lg" style={{ background: 'rgba(196,129,58,0.1)' }} />
+        <div className="h-4 w-1/3 rounded-lg" style={{ background: 'rgba(196,129,58,0.08)' }} />
+        <div className="h-16 w-full rounded-xl" style={{ background: 'rgba(196,129,58,0.08)' }} />
+        <div className="h-10 w-full rounded-xl" style={{ background: 'rgba(196,129,58,0.12)' }} />
       </div>
     </div>
   );
