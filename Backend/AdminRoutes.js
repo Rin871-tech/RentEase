@@ -13,58 +13,6 @@ const {
   checkSuperAdmin,
 } = require('../middleware/adminAuth');
 
-// Generate JWT Token
-const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: '7d',
-  });
-};
-
-// ============ SETUP ENDPOINT (One-time use) ============
-
-// Create First Super Admin
-router.post('/setup/create-admin', async (req, res) => {
-  try {
-    const existingAdmins = await Admin.countDocuments();
-
-    if (existingAdmins > 0) {
-      return res.status(400).json({
-        message: 'Admin already exists. Setup is complete.',
-      });
-    }
-
-    const admin = new Admin({
-      name: 'Admin',
-      email: 'admin@rentease.com',
-      password: 'Admin@123',
-      role: 'super_admin',
-      permissions: {
-        manageProducts: true,
-        manageOrders: true,
-        manageUsers: true,
-        manageAdmins: true,
-        viewAnalytics: true,
-      },
-    });
-
-    await admin.save();
-
-    const token = generateToken(admin._id);
-
-    res.status(201).json({
-      message: 'First admin created successfully',
-      token,
-      credentials: {
-        email: 'admin@rentease.com',
-        password: 'Admin@123',
-        note: 'Please change password after first login',
-      },
-    });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
-
 // ============ ADMIN AUTH ============
 
 // Admin Login
@@ -76,7 +24,7 @@ router.post('/auth/login', async (req, res) => {
       return res.status(400).json({ message: 'Email and password required' });
     }
 
-    const admin = await Admin.findOne({ email }).select('+password');
+    const admin = await Admin.findOne({ email });
 
     if (!admin) {
       return res.status(401).json({ message: 'Invalid email or password' });
@@ -92,10 +40,16 @@ router.post('/auth/login', async (req, res) => {
       return res.status(403).json({ message: 'Admin account is inactive' });
     }
 
+    // Update last login
     admin.lastLogin = new Date();
     await admin.save();
 
-    const token = generateToken(admin._id);
+    // Generate token
+    const token = jwt.sign(
+      { id: admin._id, email: admin.email, role: admin.role },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    );
 
     res.json({
       message: 'Login successful',
@@ -126,7 +80,7 @@ router.get('/me', verifyAdminToken, checkAdminActive, (req, res) => {
 
 // ============ PRODUCT MANAGEMENT ============
 
-// Get All Products
+// Get All Products (Admin View)
 router.get(
   '/products',
   verifyAdminToken,
@@ -341,6 +295,7 @@ router.get(
         return res.status(404).json({ message: 'User not found' });
       }
 
+      // Get user's rentals
       const rentals = await Rental.find({ userId: req.params.id });
 
       res.json({
@@ -432,9 +387,11 @@ router.get(
       const totalRentals = await Rental.countDocuments();
       const activeRentals = await Rental.countDocuments({ status: 'active' });
 
+      // Revenue calculation
       const rentals = await Rental.find({ paymentStatus: 'completed' });
       const totalRevenue = rentals.reduce((sum, r) => sum + r.totalCost, 0);
 
+      // Get rentals by status
       const rentalsByStatus = await Rental.aggregate([
         {
           $group: {
@@ -461,5 +418,47 @@ router.get(
     }
   }
 );
+
+// ============ SETUP ENDPOINT (One-time use) ============
+
+// Create First Super Admin
+router.post('/setup/create-admin', async (req, res) => {
+  try {
+    const existingAdmins = await Admin.countDocuments();
+
+    if (existingAdmins > 0) {
+      return res.status(400).json({
+        message: 'Admin already exists. Setup is complete.',
+      });
+    }
+
+    const admin = new Admin({
+      name: 'Admin',
+      email: 'admin@rentease.com',
+      password: 'Admin@123',
+      role: 'super_admin',
+      permissions: {
+        manageProducts: true,
+        manageOrders: true,
+        manageUsers: true,
+        manageAdmins: true,
+        viewAnalytics: true,
+      },
+    });
+
+    await admin.save();
+
+    res.status(201).json({
+      message: 'First admin created successfully',
+      credentials: {
+        email: 'admin@rentease.com',
+        password: 'Admin@123',
+        note: 'Please change password after first login',
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
 
 module.exports = router;

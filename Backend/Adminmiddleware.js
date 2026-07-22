@@ -1,10 +1,9 @@
+// File: backend/middleware/adminAuth.js
 const jwt = require('jsonwebtoken');
 const Admin = require('../models/Admin');
 
-// ============================================================
-// VERIFY ADMIN TOKEN - Check JWT validity
-// ============================================================
-const verifyAdminToken = async (req, res, next) => {
+// Verify Admin Token
+const verifyAdminToken = (req, res, next) => {
   try {
     const token = req.headers.authorization?.split(' ')[1];
 
@@ -12,7 +11,7 @@ const verifyAdminToken = async (req, res, next) => {
       return res.status(401).json({ message: 'No token provided' });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.adminId = decoded.id;
     next();
   } catch (error) {
@@ -20,9 +19,7 @@ const verifyAdminToken = async (req, res, next) => {
   }
 };
 
-// ============================================================
-// CHECK ADMIN ACTIVE - Verify admin exists and is active
-// ============================================================
+// Check Admin Exists & Active
 const checkAdminActive = async (req, res, next) => {
   try {
     const admin = await Admin.findById(req.adminId);
@@ -38,15 +35,9 @@ const checkAdminActive = async (req, res, next) => {
   }
 };
 
-// ============================================================
-// CHECK PERMISSION - Verify specific permission
-// ============================================================
+// Check Specific Permission
 const checkPermission = (permissionKey) => {
   return (req, res, next) => {
-    if (!req.admin) {
-      return res.status(401).json({ message: 'Not authenticated' });
-    }
-
     if (!req.admin.permissions[permissionKey] && req.admin.role !== 'super_admin') {
       return res.status(403).json({ message: 'Permission denied' });
     }
@@ -54,23 +45,14 @@ const checkPermission = (permissionKey) => {
   };
 };
 
-// ============================================================
-// CHECK SUPER ADMIN - Only super admin allowed
-// ============================================================
+// Check Super Admin Only
 const checkSuperAdmin = (req, res, next) => {
-  if (!req.admin) {
-    return res.status(401).json({ message: 'Not authenticated' });
-  }
-
   if (req.admin.role !== 'super_admin') {
     return res.status(403).json({ message: 'Super Admin access required' });
   }
   next();
 };
 
-// ============================================================
-// EXPORT ALL FUNCTIONS
-// ============================================================
 module.exports = {
   verifyAdminToken,
   checkAdminActive,
