@@ -56,6 +56,16 @@ export default function Navbar() {
                 My Rentals
               </Link>
             )}
+            {/* Admin Portal Link */}
+            <Link to="/admin/login" className="nav-link group relative ml-2 px-3 py-2 rounded-lg transition-all duration-200 flex items-center gap-1.5"
+              style={{ color: '#c4a882' }}
+              onMouseEnter={e => { e.currentTarget.style.color = '#d4a870'; e.currentTarget.style.background = 'rgba(196,129,58,0.2)'; e.currentTarget.style.borderRadius = '0.5rem'; }}
+              onMouseLeave={e => { e.currentTarget.style.color = '#c4a882'; e.currentTarget.style.background = 'transparent'; }}>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+              Admin
+            </Link>
           </div>
 
           {/* Desktop Actions */}
@@ -136,6 +146,12 @@ export default function Navbar() {
         <div className="px-4 pb-4 pt-2 space-y-1" style={{ borderTop: '1px solid rgba(196,129,58,0.15)', background: 'rgba(14,7,3,0.98)' }}>
           <Link to="/" onClick={closeMobile} className={`block nav-link ${isActive('/') ? 'nav-link-active' : ''}`}>Home</Link>
           <Link to="/about" onClick={closeMobile} className={`block nav-link ${isActive('/about') ? 'nav-link-active' : ''}`}>About</Link>
+          <Link to="/admin/login" onClick={closeMobile} className="block nav-link flex items-center gap-2" style={{ color: '#c4a882' }}>
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+            Admin Portal
+          </Link>
           {user ? (
             <>
               <Link to="/my-rentals" onClick={closeMobile} className="block nav-link">My Rentals</Link>
