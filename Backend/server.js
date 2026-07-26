@@ -3,10 +3,10 @@ const cors = require('cors');
 require('dotenv').config();
 const connectDB = require('./config/db');
 
-// Connect to database
-connectDB();
-
 const app = express();
+
+// Connect to database without blocking app startup
+connectDB().catch(() => {});
 
 // Middleware
 app.use(express.json());
