@@ -1,13 +1,12 @@
 import axios from 'axios';
 
-const API_BASE_URL='https://rentease-production-9a13.up.railway.app/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
 });
 
 api.interceptors.request.use((config) => {
-  // Use admin token for admin routes, otherwise use user token
   if (config.url?.includes('/admin')) {
     const adminToken = localStorage.getItem('adminToken');
     if (adminToken) {
