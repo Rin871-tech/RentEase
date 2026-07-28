@@ -33,8 +33,8 @@ app.get('/', (req, res) => {
 
 // ============= CONNECT TO DB (non-blocking) =============
 connectDB().catch(err => {
-  console.error('❌ Database connection failed:', err);
-  // App still runs, DB error logged
+  console.error('⚠️ MongoDB error:', err.message);
+  // App continues even if DB fails
 });
 
 // ============= ROUTES =============
