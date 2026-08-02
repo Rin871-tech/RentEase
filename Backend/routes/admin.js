@@ -305,6 +305,123 @@ router.put(
   }
 );
 
+// ============ RENTALS MANAGEMENT ============
+
+// Get All Rentals
+router.get(
+  '/rentals',
+  verifyAdminToken,
+  checkAdminActive,
+  checkPermission('manageOrders'),
+  async (req, res) => {
+    try {
+      const rentals = await Rental.find()
+        .populate('userId', 'name email phone')
+        .populate('productId', 'name monthlyPrice category');
+
+      res.json({
+        count: rentals.length,
+        rentals,
+      });
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  }
+);
+
+// Get Single Rental
+router.get(
+  '/rentals/:id',
+  verifyAdminToken,
+  checkAdminActive,
+  checkPermission('manageOrders'),
+  async (req, res) => {
+    try {
+      const rental = await Rental.findById(req.params.id)
+        .populate('userId', 'name email phone')
+        .populate('productId', 'name monthlyPrice category');
+
+      if (!rental) {
+        return res.status(404).json({ message: 'Rental not found' });
+      }
+
+      res.json(rental);
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  }
+);
+
+// Mark Rental as Returned
+router.put(
+  '/rentals/:id/return',
+  verifyAdminToken,
+  checkAdminActive,
+  checkPermission('manageOrders'),
+  async (req, res) => {
+    try {
+      const { returnDate, condition } = req.body;
+
+      const rental = await Rental.findByIdAndUpdate(
+        req.params.id,
+        {
+          status: 'returned',
+          returnDate: returnDate || new Date(),
+          condition,
+        },
+        { new: true }
+      );
+
+      if (!rental) {
+        return res.status(404).json({ message: 'Rental not found' });
+      }
+
+      res.json({
+        message: 'Rental marked as returned',
+        rental,
+      });
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  }
+);
+
+// Report Damage
+router.post(
+  '/rentals/:id/damage',
+  verifyAdminToken,
+  checkAdminActive,
+  checkPermission('manageOrders'),
+  async (req, res) => {
+    try {
+      const { description, amount } = req.body;
+
+      const rental = await Rental.findByIdAndUpdate(
+        req.params.id,
+        {
+          $set: {
+            'damageReport.description': description,
+            'damageReport.amount': amount,
+            'damageReport.reportedDate': new Date(),
+          },
+        },
+        { new: true }
+      );
+
+      if (!rental) {
+        return res.status(404).json({ message: 'Rental not found' });
+      }
+
+      res.json({
+        message: 'Damage reported',
+        rental,
+      });
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  }
+);
+
 // ============ USER MANAGEMENT ============
 
 // Get All Users
@@ -419,9 +536,73 @@ router.post(
 
 // ============ ANALYTICS ============
 
-// Dashboard Analytics
+// Dashboard Analytics (Main endpoint for dashboard)
 router.get(
-  '/analytics/dashboard',
+  '/dashboard',
+  verifyAdminToken,
+  checkAdminActive,
+  checkPermission('viewAnalytics'),
+  async (req, res) => {
+    try {
+      const totalUsers = await User.countDocuments();
+      const totalProducts = await Product.countDocuments();
+      const totalOrders = await Rental.countDocuments();
+      const activeRentals = await Rental.countDocuments({ status: 'active' });
+
+      // Revenue calculation
+      const rentals = await Rental.find({ paymentStatus: 'completed' });
+      const totalRevenue = rentals.reduce((sum, r) => sum + (r.totalCost || 0), 0);
+
+      // Get recent orders (last 5)
+      const recentOrders = await Rental.find()
+        .populate('userId', 'name email')
+        .sort({ createdAt: -1 })
+        .limit(5);
+
+      // Get top products
+      const topProductsAgg = await Rental.aggregate([
+        {
+          $group: {
+            _id: '$productId',
+            rentals: { $sum: 1 },
+          },
+        },
+        { $sort: { rentals: -1 } },
+        { $limit: 5 },
+        {
+          $lookup: {
+            from: 'products',
+            localField: '_id',
+            foreignField: '_id',
+            as: 'product',
+          },
+        },
+      ]);
+
+      const topProducts = topProductsAgg.map((item) => ({
+        _id: item._id,
+        name: item.product[0]?.name || 'Unknown',
+        rentals: item.rentals,
+      }));
+
+      res.json({
+        totalRevenue,
+        activeRentals,
+        totalUsers,
+        totalOrders,
+        totalProducts,
+        recentOrders,
+        topProducts,
+      });
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  }
+);
+
+// Full Analytics
+router.get(
+  '/analytics',
   verifyAdminToken,
   checkAdminActive,
   checkPermission('viewAnalytics'),
@@ -433,7 +614,7 @@ router.get(
       const activeRentals = await Rental.countDocuments({ status: 'active' });
 
       const rentals = await Rental.find({ paymentStatus: 'completed' });
-      const totalRevenue = rentals.reduce((sum, r) => sum + r.totalCost, 0);
+      const totalRevenue = rentals.reduce((sum, r) => sum + (r.totalCost || 0), 0);
 
       const rentalsByStatus = await Rental.aggregate([
         {
