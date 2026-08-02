@@ -15,11 +15,12 @@ app.use(cors({
     'http://localhost:3000',
     'http://localhost:5173',
     'https://rentease-vc23.vercel.app',
+    'https://rent-ease-ten-topaz.vercel.app',
+    'https://rent-ease-1vfr5352i-vaishnavi-chavans-projects-1cf11fac.vercel.app',
     'https://rentease-uieo.onrender.com'
   ],
   credentials: true
 }));
-
 // Health Check
 app.get('/api/health', (req, res) => {
   res.json({ 
