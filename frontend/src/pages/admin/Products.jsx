@@ -1,140 +1,121 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import AdminLayout from '../../components/AdminLayout';
-import ProtectedAdminRoute from '../../components/ProtectedAdminRoute';
+import React, { useState, useEffect, useContext } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { AuthContext } from '../../context/AuthContext';
+import adminApi from '../../services/adminApi';
 import LoadingSpinner from '../../components/LoadingSpinner';
-import { adminProductsAPI } from '../../services/api';
+import AdminLayout from '../../components/AdminLayout';
 
-function ProductsContent() {
+export default function AdminProducts() {
   const navigate = useNavigate();
+  const { adminToken, logoutAdmin } = useContext(AuthContext);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [deleteConfirm, setDeleteConfirm] = useState(null);
 
   useEffect(() => {
+    if (!adminToken) {
+      navigate('/admin/login');
+      return;
+    }
     fetchProducts();
-  }, []);
+  }, [adminToken]);
 
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const response = await adminProductsAPI.getAll();
+      const response = await adminApi.getProducts(adminToken);
       setProducts(response.data.products);
+      setError('');
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to fetch products');
+      setError(err.response?.data?.error || 'Failed to load products');
+      if (err.response?.status === 401) {
+        logoutAdmin();
+        navigate('/admin/login');
+      }
     } finally {
       setLoading(false);
     }
   };
 
   const handleDelete = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this product?')) return;
+
     try {
-      await adminProductsAPI.delete(id);
-      setProducts(products.filter((p) => p._id !== id));
-      setDeleteConfirm(null);
+      await adminApi.deleteProduct(id, adminToken);
+      setProducts(products.filter(p => p._id !== id));
     } catch (err) {
-      alert(err.response?.data?.message || 'Failed to delete product');
+      setError(err.response?.data?.error || 'Failed to delete product');
     }
   };
 
-  if (loading) {
-    return (
-      <AdminLayout>
-        <div className="flex items-center justify-center min-h-screen">
-          <LoadingSpinner size="lg" text="Loading products..." />
-        </div>
-      </AdminLayout>
-    );
-  }
+  if (loading) return <LoadingSpinner />;
 
   return (
     <AdminLayout>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
+        {/* Header */}
+        <div className="flex justify-between items-center">
           <h1 className="text-3xl font-bold text-slate-900">Products</h1>
-          <button
-            onClick={() => navigate('/admin/products/add')}
-            className="btn-primary"
-          >
+          <Link to="/admin/products/add" className="btn-primary">
             ➕ Add Product
-          </button>
+          </Link>
         </div>
 
+        {/* Error Message */}
         {error && (
-          <div className="flex items-center gap-2 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">
-            <span>⚠️</span>
-            {error}
+          <div className="card bg-red-50 border-l-4 border-red-500 p-4">
+            <p className="text-red-700">{error}</p>
           </div>
         )}
 
-        {products.length === 0 ? (
-          <div className="card p-12 text-center">
-            <p className="text-slate-500 text-lg">No products yet. Create one to get started!</p>
+        {/* Products Table */}
+        <div className="card overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-slate-50 border-b">
+                <tr>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">Name</th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">Category</th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">Price</th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-slate-900">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {products.map((product) => (
+                  <tr key={product._id} className="border-b hover:bg-slate-50">
+                    <td className="px-6 py-4 text-sm text-slate-900">{product.name}</td>
+                    <td className="px-6 py-4 text-sm text-slate-600">{product.category}</td>
+                    <td className="px-6 py-4 text-sm text-slate-900">₹{product.rentalPrice}</td>
+                    <td className="px-6 py-4 text-sm space-x-2">
+                      <Link
+                        to={`/admin/products/${product._id}/edit`}
+                        className="text-blue-600 hover:text-blue-700"
+                      >
+                        Edit
+                      </Link>
+                      <button
+                        onClick={() => handleDelete(product._id)}
+                        className="text-red-600 hover:text-red-700"
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-        ) : (
-          <div className="space-y-4">
-            {products.map((product) => (
-              <div key={product._id} className="card p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <div className="flex-1">
-                  <h3 className="text-lg font-bold text-slate-900">{product.name}</h3>
-                  <p className="text-sm text-slate-500 mt-1">{product.description}</p>
-                  <div className="flex items-center gap-4 mt-3 text-sm">
-                    <span className="px-3 py-1 bg-brand-100 text-brand-700 rounded-full font-medium capitalize">
-                      {product.category}
-                    </span>
-                    <span className="text-slate-700">₹{product.monthlyPrice}/mo</span>
-                    <span className="text-slate-700">Qty: {product.quantity}</span>
-                  </div>
-                </div>
+        </div>
 
-                <div className="flex items-center gap-2 w-full sm:w-auto">
-                  <button
-                    onClick={() => navigate(`/admin/products/${product._id}/edit`)}
-                    className="flex-1 sm:flex-0 px-4 py-2 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 font-medium transition-colors text-sm"
-                  >
-                    ✏️ Edit
-                  </button>
-                  <button
-                    onClick={() => setDeleteConfirm(product._id)}
-                    className="flex-1 sm:flex-0 px-4 py-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 font-medium transition-colors text-sm"
-                  >
-                    🗑️ Delete
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Delete Confirmation Modal */}
-        {deleteConfirm && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className="card p-6 max-w-sm">
-              <h3 className="text-lg font-bold text-slate-900 mb-2">Delete Product?</h3>
-              <p className="text-slate-600 text-sm mb-6">Are you sure? This action cannot be undone.</p>
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => setDeleteConfirm(null)}
-                  className="flex-1 px-4 py-2 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 font-medium transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={() => handleDelete(deleteConfirm)}
-                  className="flex-1 px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 font-medium transition-colors"
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
+        {products.length === 0 && (
+          <div className="card text-center p-12">
+            <p className="text-slate-600 mb-4">No products found</p>
+            <Link to="/admin/products/add" className="btn-primary">
+              Add your first product
+            </Link>
           </div>
         )}
       </div>
     </AdminLayout>
   );
-}
-
-export default function Products() {
-  return <ProtectedAdminRoute element={<ProductsContent />} />;
 }
