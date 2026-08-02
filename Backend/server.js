@@ -17,6 +17,7 @@ app.use(cors({
     'https://rentease-vc23.vercel.app',
     'https://rent-ease-ten-topaz.vercel.app',
     'https://rent-ease-1vfr5352i-vaishnavi-chavans-projects-1cf11fac.vercel.app',
+    'https://rent-ease-50ur8u1b9-vaishnavi-chavans-projects-1cf11fac.vercel.app',  // ADD THIS LINE
     'https://rentease-uieo.onrender.com'
   ],
   credentials: true
